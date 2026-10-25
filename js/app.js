@@ -193,7 +193,7 @@
     BASE_RGB[c] = hexRgb(DETAILS[kind].color);
     EDGE_RGB[c] = hexRgb(DETAILS[kind].edge);
   }
-  const FOAM_RGB = [232, 244, 249];
+  const FOAM_RGB = [150, 196, 206];      // faint light shoreline, like the in-game map
 
   // Overview pixels (one per cell).
   const FILL = new Uint32Array(16);
@@ -207,7 +207,7 @@
     TREE_FILL[c] = pack(...shade(BASE_RGB[c], 0.84));
     TREE_DOT[c] = pack(...shade(BASE_RGB[c], 0.55));
   }
-  const FOAM = pack(...FOAM_RGB, 170);
+  const FOAM = pack(...FOAM_RGB, 90);
 
   // Small integer hash -> [0, 1)
   function hash(x, y, salt) {
@@ -251,8 +251,47 @@
     }
     bioCtx.putImageData(bioImg, 0, 0, x0, y0, x1 - x0 + 1, y1 - y0 + 1);
     invalidateTiles(x0, y0, x1, y1, far);
+    scheduleShallows();
   }
   const redrawAllCells = () => redrawCells(0, 0, N - 1, N - 1);
+
+  // ---------- Shallow water ----------
+  // Like the in-game map, water near land is lighter and fades into the deep sea. It is a blurred,
+  // blue-green copy of the land at low resolution, drawn under the land. Rebuilt shortly after edits.
+  const SHALLOW_PX = 512;          // 40 m per pixel
+  const shallowCanvas = document.createElement('canvas');
+  shallowCanvas.width = shallowCanvas.height = SHALLOW_PX;
+  const shallowMask = document.createElement('canvas');
+  shallowMask.width = shallowMask.height = SHALLOW_PX;
+  let shallowTimer = 0;
+
+  function scheduleShallows() {
+    clearTimeout(shallowTimer);
+    shallowTimer = setTimeout(buildShallows, 150);
+  }
+
+  function buildShallows() {
+    // Land silhouette in the shallow-water color.
+    const m = shallowMask.getContext('2d');
+    m.globalCompositeOperation = 'copy';
+    m.drawImage(bioCanvas, 0, 0, SHALLOW_PX, SHALLOW_PX);
+    m.globalCompositeOperation = 'source-in';
+    m.fillStyle = '#8fc6cf';
+    m.fillRect(0, 0, SHALLOW_PX, SHALLOW_PX);
+    // Two blurs: a wide soft fade and a brighter band right at the coast.
+    const s = shallowCanvas.getContext('2d');
+    s.clearRect(0, 0, SHALLOW_PX, SHALLOW_PX);
+    s.filter = 'blur(9px)';
+    s.globalAlpha = 1;
+    s.drawImage(shallowMask, 0, 0);
+    s.drawImage(shallowMask, 0, 0);
+    s.filter = 'blur(2.5px)';
+    s.globalAlpha = 0.8;
+    s.drawImage(shallowMask, 0, 0);
+    s.filter = 'none';
+    s.globalAlpha = 1;
+    requestDraw();
+  }
 
   // ---------- Sharp tiles (used when zoomed in) ----------
   // The map is redrawn in 512 px tiles at `u` device pixels per cell (u = 2, 4, 8 or 16),
@@ -399,7 +438,7 @@
     // Outline widths in "margin" units: the class margin changes ~1.33 per cell.
     const perPx = 1.33 / u;
     const edgeW = perPx * 1.6;
-    const foamW = perPx * 4.5;
+    const foamW = perPx * 2.5;
     const aaW = perPx * 0.75;
 
     const acc = new Float32Array(16);
@@ -445,7 +484,7 @@
       if (c === 0) {
         if (other > 0 && margin < foamW) {
           out[0] = FOAM_RGB[0]; out[1] = FOAM_RGB[1]; out[2] = FOAM_RGB[2];
-          out[3] = 190 * (1 - margin / foamW);
+          out[3] = 110 * (1 - margin / foamW);
         } else out[3] = 0;
         return;
       }
@@ -1140,6 +1179,9 @@
     c.imageSmoothingEnabled = true;
     c.imageSmoothingQuality = 'high';
     const [lx, ty] = w2s(cam, -HALF, HALF);
+    c.globalAlpha = 0.85;
+    c.drawImage(shallowCanvas, lx, ty, N * CELL * cam.s, N * CELL * cam.s);
+    c.globalAlpha = 1;
     c.drawImage(bioCanvas, lx, ty, N * CELL * cam.s, N * CELL * cam.s);
     if (tiles) drawTiles(c, cam);
     // The game's parchment mottling over everything.
