@@ -101,3 +101,9 @@ tools/build-icons.js  rebuilds js/icons.js from game-icons.net
 ## License
 
 Code: MIT. Icons: CC BY 3.0 from game-icons.net. Font: SIL OFL 1.1. See [CREDITS.md](CREDITS.md).
+
+## Privacy
+
+The website counts visits with two anonymous counters on [Abacus](https://abacus.jasoncameron.dev)
+(a page-load count and a once-per-browser count). No cookies are set and nothing about you is sent.
+Your maps never leave your browser unless you save or share them yourself.

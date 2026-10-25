@@ -2283,6 +2283,24 @@
   });
   bugDialog.addEventListener('click', e => { if (e.target === bugDialog) closeBugDialog(); });
 
+  // ---------- Visit counter ----------
+  // Two anonymous counters on the free Abacus service (no cookies, nothing about the visitor is sent):
+  // "visits" counts every page load, "visitors" counts each browser once. Only on the live website,
+  // not when ValMap is opened from disk. Read them at
+  // https://abacus.jasoncameron.dev/get/valmap-threven1/visits (or /visitors).
+  const COUNTER = 'https://abacus.jasoncameron.dev/hit/valmap-threven1/';
+  const COUNTED_KEY = 'valmap.counted';
+  if (location.protocol === 'https:') {
+    const hit = name => fetch(COUNTER + name, { mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer' }).catch(() => {});
+    hit('visits');
+    let seen = false;
+    try { seen = localStorage.getItem(COUNTED_KEY) === '1'; } catch { /* count again */ }
+    if (!seen) {
+      hit('visitors');
+      try { localStorage.setItem(COUNTED_KEY, '1'); } catch { /* counted once more next time */ }
+    }
+  }
+
   // ---------- Credits ----------
   const creditsDialog = $('#creditsDialog');
   $('#creditsBtn').addEventListener('click', () => { creditsDialog.hidden = false; $('#creditsClose').focus(); });
