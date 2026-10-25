@@ -1,5 +1,8 @@
 # Credits
 
+Vibecoded by [ThrevenD](https://www.twitch.tv/threvend) with
+[Claude Code](https://claude.com/claude-code) and Claude Design.
+
 ## Icons
 
 All icons come from [game-icons.net](https://game-icons.net) and are licensed under
