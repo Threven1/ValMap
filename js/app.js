@@ -1152,25 +1152,12 @@
       c.setLineDash([8 * ui, 8 * ui]);
       for (let r = step; r < WORLD_R; r += step) {
         c.lineWidth = (r % 2000 ? 1 : 1.5) * ui;
-        c.strokeStyle = r % 2000 ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.3)';
+        c.strokeStyle = r % 2000 ? 'rgba(255,255,255,.07)' : 'rgba(255,255,255,.13)';
         c.beginPath();
         c.arc(cx, cy, r * cam.s, 0, Math.PI * 2);
         c.stroke();
       }
       c.setLineDash([]);
-      // Distance labels on all four sides, so one is in view wherever you look.
-      c.font = `600 ${12 * ui}px "Segoe UI", sans-serif`;
-      c.textAlign = 'center';
-      c.textBaseline = 'middle';
-      c.fillStyle = 'rgba(255,255,255,.65)';
-      for (let r = step; r < WORLD_R; r += step) {
-        const d = r * cam.s;
-        const text = `${r / 1000} km`;
-        c.fillText(text, cx, cy - d);
-        c.fillText(text, cx, cy + d);
-        c.fillText(text, cx - d, cy);
-        c.fillText(text, cx + d, cy);
-      }
     }
     c.restore();
 
@@ -1272,7 +1259,7 @@
   }
 
   // A small compass rose fixed in the top-right corner, so directions stay visible when the rim
-  // is off screen, with how far the middle of the screen is from spawn.
+  // is off screen.
   function drawCompassRose() {
     const r = 30, x = W - r - 26, y = r + 22;
     ctx.save();
@@ -1304,12 +1291,6 @@
         ctx.fillText(name, sx * (r - 1), sy * (r - 1));
       }
     });
-    const km = Math.hypot(view.x, view.z) / 1000;
-    ctx.font = '700 11px Georgia, serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillStyle = '#f1e3c2';
-    if (view.s > fitScale() * 1.3) ctx.fillText(`${km.toFixed(1)} km`, 0, r + 10);  // when zoomed in
     ctx.restore();
   }
 
