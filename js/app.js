@@ -210,7 +210,9 @@
   }
   const FOAM = pack(...FOAM_RGB, 90);
   // Land biomes blend into each other with no edge line; only coasts and areas get one.
-  const softBorder = (a, b) => a > 0 && b > 0 && a < 9 && b < 9;
+  // Sand is drawn like an area but is ground, so it blends into the land and has an edge at the water.
+  const isGround = c => (c > 0 && c < 9) || c === AREA_CLASS.sand;
+  const softBorder = (a, b) => isGround(a) && isGround(b);
   const BLEND_W = 1;               // in border "margin" units: the whole smooth transition
 
   // Small integer hash -> [0, 1)

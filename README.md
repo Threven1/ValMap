@@ -30,6 +30,7 @@ You can also open `index.html` in any modern browser. No install, no internet ne
    | Ashlands | Lava, Ashwood |
    | Deep North | Snowy Fir, Snow hills, Ice |
 
+   Meadows, Black Forest and Plains can also get **Sand** for beaches.
    Details stack: paint Oak over Beech for a mixed forest, or Hills next to High peaks.
    To remove details, paint land or water over them.
 2. **Add places.** The right side shows places for the biome you picked (Crypt, Troll Cave,

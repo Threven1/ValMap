@@ -31,14 +31,15 @@ const CATALOG = {
     mist:     { name: 'Mist', type: 'area', color: '#b9b2d0', edge: '#8c84a8' },
     lava:     { name: 'Lava', type: 'area', color: '#f26a1b', edge: '#4a1408' },
     ice:      { name: 'Ice', type: 'area', color: '#e9f7ff', edge: '#8fbcd4' },
+    sand:     { name: 'Sand', type: 'area', color: '#d8c391', edge: '#a08a5c' },
   },
 
   biomes: [
-    { id: 1, key: 'meadows',     name: 'Meadows',      color: '#93c25a', badge: '#4f7d2a', icon: 'delapouite/grass', details: ['beech', 'birch', 'oak'] },
-    { id: 2, key: 'blackforest', name: 'Black Forest', color: '#3e5b33', badge: '#24401e', icon: 'lorc/pine-tree', details: ['fir', 'pine', 'boulders'] },
+    { id: 1, key: 'meadows',     name: 'Meadows',      color: '#93c25a', badge: '#4f7d2a', icon: 'delapouite/grass', details: ['beech', 'birch', 'oak', 'sand'] },
+    { id: 2, key: 'blackforest', name: 'Black Forest', color: '#3e5b33', badge: '#24401e', icon: 'lorc/pine-tree', details: ['fir', 'pine', 'boulders', 'sand'] },
     { id: 3, key: 'swamp',       name: 'Swamp',        color: '#6e5a3c', badge: '#4a3a22', icon: 'delapouite/swamp', details: ['deadtree', 'bog'] },
     { id: 4, key: 'mountain',    name: 'Mountain',     color: '#f6f9fb', badge: '#5f7480', icon: 'lorc/peaks', details: ['peak', 'hill', 'fir'] },
-    { id: 5, key: 'plains',      name: 'Plains',       color: '#dcc25e', badge: '#8f7516', icon: 'delapouite/high-grass', details: ['birch', 'oak', 'rocks'] },
+    { id: 5, key: 'plains',      name: 'Plains',       color: '#dcc25e', badge: '#8f7516', icon: 'delapouite/high-grass', details: ['birch', 'oak', 'rocks', 'sand'] },
     { id: 6, key: 'mistlands',   name: 'Mistlands',    color: '#6d6585', badge: '#463e60', icon: 'delapouite/fog', details: ['cliff', 'shoot', 'mist'] },
     { id: 7, key: 'ashlands',    name: 'Ashlands',     color: '#a3352a', badge: '#6e1a12', icon: 'lorc/volcano', details: ['lava', 'ashwood'] },
     { id: 8, key: 'deepnorth',   name: 'Deep North',   color: '#bfe2f2', badge: '#3d7f9e', icon: 'lorc/snowflake-1', details: ['snowfir', 'snowhill', 'ice'] },
