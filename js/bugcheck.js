@@ -14,12 +14,12 @@ const BUGCHECK = (() => {
 
   // Returns { text } with the cleaned report, or { error } with a message for the user.
   function check(raw) {
-    if (typeof raw !== 'string') return { error: 'Please write what went wrong.' };
+    if (typeof raw !== 'string') return { error: 'Please write a few words.' };
     const text = raw.normalize('NFKC').replace(/\s+/g, ' ').trim();
     const length = [...text].length;
     if (length < MIN) return { error: `Please write a bit more (at least ${MIN} characters).` };
     if (length > MAX) return { error: `Too long: ${MAX} characters at most.` };
-    if (LINK.test(text)) return { error: 'Links are not allowed in reports.' };
+    if (LINK.test(text)) return { error: 'Links are not allowed.' };
     if (!ALLOWED.test(text)) return { error: 'Please use only letters, numbers and simple punctuation.' };
     if (REPEAT.test(text)) return { error: 'Too many repeated characters.' };
     const letters = (text.match(/\p{L}/gu) || []).length;

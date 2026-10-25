@@ -2209,7 +2209,7 @@
   // js/bugcheck.js only lets short, plain sentences through. tools/export-bug-reports.js
   // collects the reports into a JSON file (and checks them again).
   const BUG_REPO = 'https://github.com/Threven1/ValMap';
-  const BUG_TITLE = 'Bug report: ';
+  const BUG_TITLE = 'Feedback: ';
   const BUG_WAIT_MS = 60 * 1000;          // one report per minute from the same browser
   const BUG_LAST_KEY = 'valmap.lastBugReport';
   const bugDialog = $('#bugDialog');
@@ -2255,11 +2255,11 @@
     }
     const title = BUG_TITLE + [...result.text].slice(0, 60).join('');
     const body = `${result.text}\n\n---\nValMap · ${browserName()} · ${screen.width}x${screen.height}`;
-    const url = `${BUG_REPO}/issues/new?${new URLSearchParams({ title, body, labels: 'bug' })}`;
+    const url = `${BUG_REPO}/issues/new?${new URLSearchParams({ title, body })}`;
     window.open(url, '_blank', 'noopener');
     try { localStorage.setItem(BUG_LAST_KEY, String(Date.now())); } catch { /* not remembered */ }
     closeBugDialog();
-    toast('Thanks! Check and send the report on GitHub.');
+    toast('Thanks! Check and send it on GitHub.');
   }
 
   $('#bugBtn').addEventListener('click', openBugDialog);

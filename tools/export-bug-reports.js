@@ -11,7 +11,7 @@ const path = require('path');
 const BUGCHECK = require('../js/bugcheck.js');
 
 const REPO = 'Threven1/ValMap';
-const TITLE = 'Bug report: ';
+const TITLES = ['Feedback: ', 'Bug report: '];   // older reports used the second
 
 (async () => {
   const reports = [];
@@ -23,7 +23,7 @@ const TITLE = 'Bug report: ';
     const issues = await res.json();
     if (!issues.length) break;
     for (const issue of issues) {
-      if (issue.pull_request || !issue.title.startsWith(TITLE)) continue;
+      if (issue.pull_request || !TITLES.some(t => issue.title.startsWith(t))) continue;
       // The report is the text above the "---" line the app adds.
       const text = (issue.body || '').split('\n\n---')[0];
       const result = BUGCHECK.check(text);

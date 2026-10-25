@@ -65,9 +65,9 @@ To refresh it after a Valheim update:
 1. Install Python and run `pip install UnityPy`
 2. Run `node tools/build-game-assets.js "C:\Program Files (x86)\Steam\steamapps\common\Valheim"`
 
-## Bug reports
+## Feedback
 
-The **Report a bug** button (bottom left) opens a pre-filled GitHub issue titled "Bug report: ...".
+The **Feedback** button (bottom left) opens a pre-filled GitHub issue titled "Feedback: ...".
 Reports are checked first by `js/bugcheck.js`: 10 to 255 characters of plain text, with no links,
 code, HTML, markdown links, @mentions or hidden characters, and at most one report per minute.
 
