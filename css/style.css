@@ -1,0 +1,599 @@
+/* Valheim-style look: dark tinted wood boards, iron corner brackets with rivets, bronze-rimmed
+   dark buttons, inventory-like slots that glow amber when selected, Averia Serif text.
+   Everything is plain CSS. With the optional game art (body.game-ui), the wood and buttons use
+   textures from your own Valheim install instead (set as --tex-* variables by app.js). */
+
+@font-face {
+  font-family: "Averia Serif Libre";
+  src: url("../fonts/AveriaSerifLibre-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Averia Serif Libre";
+  src: url("../fonts/AveriaSerifLibre-Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+
+:root {
+  --wood: #1c130c;
+  --wood-2: #2b1d12;
+  --wood-3: #3a2819;
+  --line: #6b4c2a;
+  --bronze: #a87a3c;
+  --bronze-dim: #6e5130;
+  --iron-hi: #a29d94;
+  --iron: #615c55;
+  --iron-lo: #2b2826;
+  --parch: #f1e3c2;
+  --parch-dim: #c4ad85;
+  --gold: #ffb43c;
+  --gold-hi: #ffd27a;
+  --glow: rgba(255, 166, 40, .55);
+  --danger: #c8442f;
+  --radius: 4px;
+  --font: "Averia Serif Libre", Georgia, "Times New Roman", serif;
+
+  /* Sizes that shrink on short screens so both panels fit without scrolling */
+  --bio: clamp(28px, 6.6vh, 64px);       /* biome color slot height */
+  --chip: clamp(30px, 5vh, 44px);      /* detail preview size */
+  --badge: clamp(30px, 4.9vh, 46px);     /* place badge size */
+  --gap: clamp(3px, .6vh, 6px);
+
+  /* Wood made from gradients: horizontal grain, a few dark knots, burnt edges */
+  --wood-grain:
+    repeating-linear-gradient(179.4deg, transparent 0 5px, rgba(0,0,0,.13) 5px 6px, transparent 6px 13px, rgba(255,210,150,.03) 13px 15px, transparent 15px 22px),
+    repeating-linear-gradient(180.7deg, transparent 0 31px, rgba(0,0,0,.16) 31px 33px, transparent 33px 58px),
+    radial-gradient(ellipse 70px 12px at 28% 18%, rgba(0,0,0,.28), transparent 70%),
+    radial-gradient(ellipse 90px 14px at 70% 47%, rgba(0,0,0,.22), transparent 70%),
+    radial-gradient(ellipse 60px 10px at 35% 81%, rgba(0,0,0,.25), transparent 70%);
+  --iron-h: linear-gradient(180deg, var(--iron-hi), var(--iron) 45%, var(--iron-lo));
+  --iron-v: linear-gradient(90deg, var(--iron-hi), var(--iron) 45%, var(--iron-lo));
+  --rivet: radial-gradient(circle at 40% 35%, #e3ddd2 0 1px, #8d877e 1.6px, #3a3633 3px, rgba(0,0,0,.5) 3.6px, transparent 4.2px);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #110b07;
+  color: var(--parch);
+  font-family: var(--font);
+  overflow: hidden;
+  user-select: none;
+}
+
+body {
+  display: grid;
+  grid-template-columns: 256px 1fr 288px;
+  grid-template-rows: 54px 1fr;
+  grid-template-areas: "top top top" "left stage right";
+}
+
+button { font: inherit; color: inherit; cursor: pointer; }
+input { font-family: var(--font); }
+
+/* ---------- Top bar: a dark plank with an iron band underneath ---------- */
+
+#topbar {
+  grid-area: top;
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px 4px;
+  background: var(--wood-grain), linear-gradient(180deg, #33231a, #20160e);
+  box-shadow: inset 0 0 26px rgba(0,0,0,.6), 0 3px 8px rgba(0,0,0,.6);
+}
+/* Iron band with rivets along the bottom edge */
+#topbar::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 6px;
+  background: var(--rivet) 0 50% / 64px 8px repeat-x, var(--iron-h);
+  box-shadow: 0 1px 0 #000;
+  pointer-events: none;
+}
+
+.brand {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 0 10px rgba(255,150,30,.35), 0 2px 2px #000;
+}
+
+#worldName {
+  width: 165px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 3px;
+  border: 1px solid var(--bronze-dim);
+  background: rgba(0,0,0,.45);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.7);
+  color: var(--parch);
+  font-size: 15px;
+}
+#worldName::placeholder { color: #8a7656; font-style: italic; }
+#worldName:focus { outline: none; border-color: var(--gold); box-shadow: inset 0 2px 5px rgba(0,0,0,.7), 0 0 6px var(--glow); }
+
+.group { display: flex; gap: 5px; }
+.spacer { flex: 1; }
+
+/* Valheim menu button: dark slab with a bronze rim, amber glow on hover */
+.tbtn {
+  height: 36px;
+  padding: 0 13px;
+  border-radius: var(--radius);
+  border: 1px solid var(--bronze-dim);
+  background: linear-gradient(180deg, #3b342d, #221d18 55%, #1a1612);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.8), inset 0 1px 0 1px rgba(255,220,160,.08), 0 2px 3px rgba(0,0,0,.6);
+  font-size: 15px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px #000;
+  white-space: nowrap;
+}
+.tbtn:hover { border-color: var(--gold); color: var(--gold-hi); box-shadow: inset 0 0 0 1px rgba(0,0,0,.8), inset 0 0 10px rgba(255,160,40,.25), 0 0 6px var(--glow); }
+.tbtn:active { transform: translateY(1px); background: linear-gradient(180deg, #1a1612, #2a241e); }
+.tbtn:disabled { opacity: .4; cursor: default; border-color: var(--bronze-dim); color: var(--parch); box-shadow: none; }
+.tbtn.round { width: 36px; padding: 0; font-size: 22px; line-height: 1; }
+.tbtn.toggle { color: var(--parch-dim); }
+.tbtn.toggle.on {
+  color: var(--gold);
+  border-color: var(--bronze);
+  background: linear-gradient(180deg, #4a3a22, #2b2114 60%, #221a10);
+}
+.tbtn.danger:hover { border-color: #ff7a5a; color: #fff; background: linear-gradient(180deg, #8c2e1e, #5a1a10); }
+.tbtn[hidden] { display: none; }
+
+/* ---------- Side panels: a dark wooden board with iron corner brackets ---------- */
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 11px 10px;
+  background: var(--wood-grain), linear-gradient(90deg, #2a1c11, #35251a 50%, #2a1c11);
+  box-shadow: inset 0 0 0 1px #000, inset 0 0 0 3px rgba(120,85,45,.35), inset 0 0 34px rgba(0,0,0,.75);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bronze-dim) transparent;
+}
+#left { grid-area: left; }
+#right { grid-area: right; }
+/* Iron L-brackets with rivets in the four corners */
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  pointer-events: none;
+  background:
+    var(--rivet) left 4px top 4px / 9px 9px no-repeat, var(--rivet) right 4px top 4px / 9px 9px no-repeat,
+    var(--rivet) left 4px bottom 4px / 9px 9px no-repeat, var(--rivet) right 4px bottom 4px / 9px 9px no-repeat,
+    var(--iron-h) left top / 30px 7px no-repeat, var(--iron-v) left top / 7px 30px no-repeat,
+    var(--iron-h) right top / 30px 7px no-repeat, var(--iron-v) right top / 7px 30px no-repeat,
+    var(--iron-h) left bottom / 30px 7px no-repeat, var(--iron-v) left bottom / 7px 30px no-repeat,
+    var(--iron-h) right bottom / 30px 7px no-repeat, var(--iron-v) right bottom / 7px 30px no-repeat;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.8));
+}
+/* Iron band between the panels and the map */
+#left::after, #right::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 5px;
+  background: var(--iron-v);
+  pointer-events: none;
+}
+#left::after { right: 0; }
+#right::after { left: 0; transform: scaleX(-1); }
+
+.panel h2 {
+  margin: 2px 0 calc(var(--gap) + 4px);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 2px 3px #000;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+/* Small section titles sit on a bronze line, like the game's panel separators */
+.panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: calc(var(--gap) * 2) 0 var(--gap);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--parch-dim);
+  text-shadow: 0 1px 2px #000;
+  white-space: nowrap;
+}
+.panel h3::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--bronze), rgba(168,122,60,0));
+  box-shadow: 0 1px 0 rgba(0,0,0,.6);
+}
+/* The step number is a bronze shield boss */
+.step {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffe2a0, #d39a3e 40%, #7a4f1c 85%);
+  border: 2px solid #2a1c10;
+  box-shadow: 0 0 0 1px var(--bronze), 0 2px 4px #000;
+  color: #2a1a0a;
+  font-size: 15px;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255,230,180,.6);
+}
+
+/* Inventory slot: shared look of every pickable button in the panels */
+.biome, .layer, .size, .tool, .place {
+  position: relative;
+  border-radius: var(--radius);
+  border: 2px solid rgba(0,0,0,.55);
+  background: linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,.28));
+  box-shadow: inset 0 0 0 1px rgba(255,225,180,.09), inset 0 2px 6px rgba(0,0,0,.5);
+  text-shadow: 0 1px 2px #000;
+}
+.biome:hover, .layer:hover, .size:hover, .tool:hover, .place:hover {
+  background: linear-gradient(180deg, rgba(90,60,30,.5), rgba(40,26,14,.5));
+  box-shadow: inset 0 0 0 1px rgba(255,190,100,.35), inset 0 2px 6px rgba(0,0,0,.4);
+}
+/* Selected: amber rim and glow, like the selected item in the crafting list */
+.biome.on, .layer.on, .size.on, .tool.on, .place.on {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, rgba(120,72,18,.55), rgba(60,36,10,.55));
+  box-shadow: 0 0 8px 1px var(--glow), inset 0 0 12px rgba(255,170,50,.35), inset 0 0 0 1px rgba(255,230,170,.35);
+  color: var(--gold-hi);
+}
+
+/* Biomes: 3x3 grid of tiles */
+#biomes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: var(--gap);
+}
+.biome {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  padding: 4px 3px 3px;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.05;
+}
+.biome .swatch {
+  height: var(--bio);
+  flex: none;
+  border-radius: 3px;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), inset 0 0 10px rgba(0,0,0,.45);
+}
+.biome .swatch svg { width: calc(var(--bio) - 6px); height: calc(var(--bio) - 6px); }
+.biome .name { flex: 1; display: grid; place-items: center; text-align: center; min-height: 2.1em; }
+
+/* What to draw on the selected biome: land, or one of its details (trees, peaks, lava...) */
+#layerBox[hidden] { display: none; }
+#layers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gap); }
+.layer {
+  padding: 2px 1px 3px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.05;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  text-align: center;
+}
+.layer canvas { width: var(--chip) !important; height: var(--chip) !important; }
+.layer .chip {
+  width: calc(var(--chip) - 6px); height: calc(var(--chip) - 6px);
+  margin: 3px 0;
+  border-radius: 3px;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), inset 0 0 8px rgba(0,0,0,.4);
+}
+.layer .chip svg { width: 70%; height: 70%; }
+.layer > span:last-child { min-height: 2.1em; display: grid; place-items: center; }
+
+/* Brush sizes: one row of seven */
+#sizes { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.size {
+  height: clamp(36px, 6vh, 56px);
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+/* The dots keep their order but are scaled to fit the narrow buttons */
+.size span {
+  display: block;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff6e0, var(--parch) 50%, #b9a27a);
+  box-shadow: 0 1px 2px #000;
+  transform: scale(.72);
+}
+.size.on span { background: radial-gradient(circle at 35% 30%, #fff1c8, var(--gold) 55%, #a8661a); }
+
+/* Tools */
+#tools { display: flex; gap: var(--gap); }
+.tool {
+  flex: 1;
+  padding: 5px 4px 4px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.tool svg {
+  width: clamp(24px, 4.6vh, 44px); height: clamp(24px, 4.6vh, 44px);
+  fill: var(--parch);
+  filter: drop-shadow(0 1px 1px #000);
+}
+.tool.on svg { fill: var(--gold); }
+
+/* Places */
+#placesTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--gap);
+  font-weight: 700;
+  font-size: 15px;
+  text-shadow: 0 1px 2px #000;
+}
+#placesTitle .dot {
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #1a120a, 0 0 0 3px var(--bronze);
+}
+
+.placegrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); }
+
+.place {
+  padding: 4px 2px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.05;
+  text-align: center;
+}
+.place .badge {
+  width: var(--badge); height: var(--badge);
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 2px #e9dcc0, 0 0 0 3px #1a120a, 0 2px 4px rgba(0,0,0,.7);
+}
+.place .badge.boss { box-shadow: 0 0 0 2px var(--gold), 0 0 0 3px #3a2208, 0 0 8px rgba(255,170,40,.6); }
+.place .badge svg { width: 66%; height: 66%; fill: #fff; filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
+.place .badge img { width: 82%; height: 82%; object-fit: contain; }
+/* Label: at most two lines, the full name is in the tooltip */
+.place > span:last-child {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 2.1em;
+}
+.place .plus {
+  position: absolute;
+  top: 0; right: 4px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 1px 2px #000;
+}
+
+/* ---------- Map stage ---------- */
+
+#stage { grid-area: stage; position: relative; overflow: hidden; background: #1b140f; box-shadow: inset 0 0 30px rgba(0,0,0,.8); }
+#map { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
+
+#hint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  padding: 7px 18px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(36,26,18,.92), rgba(20,14,10,.92));
+  border: 1px solid var(--bronze-dim);
+  box-shadow: inset 0 0 0 1px #000, 0 2px 8px rgba(0,0,0,.6);
+  font-size: 14px;
+  text-shadow: 0 1px 2px #000;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Like the game's center-screen messages: amber text on a dark band */
+#toast {
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  transform: translateX(-50%);
+  padding: 9px 26px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(20,13,8,0), rgba(20,13,8,.92) 15%, rgba(20,13,8,.92) 85%, rgba(20,13,8,0));
+  border-top: 1px solid var(--bronze);
+  border-bottom: 1px solid var(--bronze);
+  color: var(--gold);
+  font-size: 17px;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(255,150,30,.4), 0 2px 2px #000;
+  pointer-events: none;
+}
+
+#popup {
+  position: absolute;
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 4px;
+  background: var(--wood-grain), linear-gradient(180deg, #35251a, #24180f);
+  border: 2px solid var(--bronze);
+  box-shadow: inset 0 0 0 1px #000, 0 0 10px var(--glow), 0 6px 18px rgba(0,0,0,.6);
+  transform: translate(-50%, 0);
+}
+#popup[hidden] { display: none; }
+#popupLabel {
+  width: 160px;
+  padding: 6px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--bronze-dim);
+  background: rgba(0,0,0,.45);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.7);
+  color: var(--parch);
+  font-size: 15px;
+}
+#popupLabel:focus { outline: none; border-color: var(--gold); }
+.pbtn {
+  width: 38px; height: 36px;
+  border-radius: var(--radius);
+  border: 1px solid var(--bronze-dim);
+  background: linear-gradient(180deg, #3b342d, #221d18 55%, #1a1612);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.8);
+  font-size: 18px;
+  display: grid;
+  place-items: center;
+}
+.pbtn svg { width: 22px; height: 22px; fill: var(--parch); }
+.pbtn:hover { border-color: var(--gold); color: var(--gold); }
+.pbtn.danger:hover { background: linear-gradient(180deg, #8c2e1e, #5a1a10); border-color: #ff7a5a; }
+
+/* ---------- Bug report ---------- */
+
+#bugBtn { margin-top: auto; width: 100%; height: 32px; font-size: 14px; color: var(--parch-dim); }
+#bugDialog {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 5, 3, .65);
+}
+#bugDialog[hidden] { display: none; }
+.bugbox {
+  width: min(460px, calc(100vw - 32px));
+  padding: 16px 18px 14px;
+  border-radius: 4px;
+  background: var(--wood-grain), linear-gradient(180deg, #35251a, #24180f);
+  border: 2px solid var(--bronze);
+  box-shadow: inset 0 0 0 1px #000, 0 0 14px var(--glow), 0 10px 30px rgba(0,0,0,.7);
+}
+.bugbox h2 {
+  margin: 0 0 6px;
+  font-size: 19px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 2px 3px #000;
+}
+.bugbox p { margin: 0 0 10px; font-size: 14px; color: var(--parch-dim); }
+#bugText {
+  width: 100%;
+  resize: none;
+  padding: 8px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--bronze-dim);
+  background: rgba(0,0,0,.45);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.7);
+  color: var(--parch);
+  font: 15px/1.35 var(--font);
+}
+#bugText:focus { outline: none; border-color: var(--gold); }
+.bugrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; font-size: 13px; }
+.bugrow.end { justify-content: flex-end; }
+#bugError { color: #ff8a6a; }
+#bugCount { color: var(--parch-dim); white-space: nowrap; }
+
+/* ---------- Optional textures from your own Valheim install ---------- */
+/* The game's boards are light raw wood that the game darkens, so they are drawn under a dark tint. */
+
+body.game-ui .panel {
+  background: linear-gradient(rgba(22,14,8,.8), rgba(22,14,8,.8)), var(--tex-wood) 0 0 / 400px 200px repeat;
+}
+body.game-ui #topbar {
+  background: linear-gradient(rgba(14,9,5,.82), rgba(14,9,5,.82)), var(--tex-wood) 0 -40px / 400px 200px repeat;
+}
+body.game-ui #popup, body.game-ui .bugbox {
+  background: linear-gradient(rgba(22,14,8,.75), rgba(22,14,8,.75)), var(--tex-wood) 0 0 / 400px 200px repeat;
+}
+body.game-ui .tbtn, body.game-ui .pbtn {
+  border: 5px solid transparent;
+  border-image: var(--tex-button) 6 fill / 5px stretch;
+  background: none;
+  box-shadow: 0 2px 3px rgba(0,0,0,.6);
+}
+body.game-ui .tbtn:hover, body.game-ui .pbtn:hover { border-image-source: var(--tex-button-hi); }
+body.game-ui .tbtn:active, body.game-ui .tbtn.toggle.on { border-image-source: var(--tex-button-down); }
+body.game-ui .tbtn.toggle.on { box-shadow: inset 0 0 12px rgba(255,160,40,.3), 0 2px 3px rgba(0,0,0,.6); }
+body.game-ui .panel h3::after {
+  height: 4px;
+  background: var(--tex-separator) left center / 100% 4px no-repeat;
+  box-shadow: none;
+}
+
+/* ---------- Window sizes ---------- */
+
+/* Narrow windows: slimmer panels and buttons */
+@media (max-width: 1280px) {
+  body { grid-template-columns: 240px 1fr 268px; }
+  #topbar { gap: 8px; padding: 0 10px 4px; }
+  .group { gap: 4px; }
+  .tbtn { padding: 0 9px; font-size: 14px; }
+  .brand { font-size: 22px; letter-spacing: 2px; }
+  #worldName { width: 140px; }
+}
+@media (max-width: 1100px) {
+  body { grid-template-columns: 210px 1fr 240px; }
+  .brand { font-size: 18px; letter-spacing: 1px; }
+  #worldName { width: 110px; }
+  .tbtn { padding: 0 7px; font-size: 13px; }
+  body.game-ui .tbtn { border-width: 4px; border-image-width: 4px; }
+  .biome { font-size: 11px; }
+  .place { font-size: 10.5px; }
+}
+/* Short windows: tighter headings and labels */
+@media (max-height: 820px) {
+  body { grid-template-rows: 50px 1fr; }
+  .panel { padding: 9px 10px 8px; }
+  .panel h2 { font-size: 17px; margin: 0 0 5px; }
+  .step { width: 25px; height: 25px; font-size: 14px; }
+  .panel h3 { margin: 7px 0 4px; font-size: 11.5px; }
+  .tbtn { height: 34px; }
+  .place { padding: 3px 2px 2px; font-size: 11px; }
+  #placesTitle { font-size: 14px; margin-bottom: 4px; }
+}
+/* Very short windows: four places per row */
+@media (max-height: 740px) {
+  body { grid-template-columns: 240px 1fr 300px; }
+  .placegrid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; }
+  .place { font-size: 10.5px; }
+  .place .badge { width: clamp(28px, 5.4vh, 38px); height: clamp(28px, 5.4vh, 38px); }
+}

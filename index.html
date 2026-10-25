@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ValMap</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header id="topbar">
+    <div class="brand">ValMap</div>
+    <input id="worldName" type="text" placeholder="World name" maxlength="40" spellcheck="false">
+    <div class="group">
+      <button id="undoBtn" class="tbtn" title="Undo (Ctrl+Z)">&#8630; Undo</button>
+      <button id="redoBtn" class="tbtn" title="Redo (Ctrl+Y)">&#8631; Redo</button>
+    </div>
+    <div class="group">
+      <button id="zoomOutBtn" class="tbtn round" title="Zoom out">&minus;</button>
+      <button id="fitBtn" class="tbtn" title="Show whole map">Whole map</button>
+      <button id="zoomInBtn" class="tbtn round" title="Zoom in">+</button>
+      <button id="ringsBtn" class="tbtn toggle on" title="Distance rings from spawn">Rings</button>
+      <button id="placesBtn" class="tbtn toggle on" title="Show or hide places (P)">Places</button>
+      <button id="gameBtn" class="tbtn toggle" title="Use the art from your own Valheim install" hidden>Game look</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="group">
+      <button id="saveBtn" class="tbtn" title="Save map to a file">Save</button>
+      <button id="openBtn" class="tbtn" title="Open a map file">Open</button>
+      <button id="pictureBtn" class="tbtn" title="Save the map as a picture">Picture</button>
+      <button id="newBtn" class="tbtn danger" title="Start a new empty map">New</button>
+    </div>
+    <input id="openFile" type="file" accept=".valmap,.json" hidden>
+  </header>
+
+  <aside id="left" class="panel">
+    <h2><span class="step">1</span> Paint the land</h2>
+    <div id="biomes"></div>
+
+    <div id="layerBox">
+      <h3 id="layerTitle">Draw</h3>
+      <div id="layers"></div>
+    </div>
+
+    <h3>Brush size</h3>
+    <div id="sizes"></div>
+
+    <h3>Tool</h3>
+    <div id="tools"></div>
+
+    <button id="bugBtn" class="tbtn" title="Tell us about a problem">Report a bug</button>
+  </aside>
+
+  <main id="stage">
+    <canvas id="map"></canvas>
+    <div id="popup" hidden>
+      <input id="popupLabel" type="text" placeholder="Name it..." maxlength="40" spellcheck="false">
+      <button id="popupDelete" class="pbtn danger" title="Delete (Del)"></button>
+      <button id="popupClose" class="pbtn" title="Done (Esc)">&#10003;</button>
+    </div>
+    <div id="hint"></div>
+    <div id="toast" hidden></div>
+  </main>
+
+  <aside id="right" class="panel">
+    <h2><span class="step">2</span> Add places</h2>
+    <div id="placesTitle"></div>
+    <div id="places" class="placegrid"></div>
+    <h3>Anywhere</h3>
+    <div id="common" class="placegrid"></div>
+  </aside>
+
+  <div id="bugDialog" hidden role="dialog" aria-modal="true" aria-labelledby="bugTitle">
+    <div class="bugbox">
+      <h2 id="bugTitle">Report a bug</h2>
+      <p>Tell us what went wrong, in a few words. This opens a GitHub issue where you can check it and send it.</p>
+      <textarea id="bugText" rows="4" maxlength="255" spellcheck="true" placeholder="What happened? What did you expect?"></textarea>
+      <div class="bugrow">
+        <span id="bugError" role="alert"></span>
+        <span id="bugCount">0 / 255</span>
+      </div>
+      <div class="bugrow end">
+        <button id="bugCancel" class="tbtn">Cancel</button>
+        <button id="bugSend" class="tbtn">Send report</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/catalog.js"></script>
+  <script src="js/bugcheck.js"></script>
+  <script src="js/icons.js"></script>
+  <!-- Optional: made from your own Valheim install by tools/build-game-assets.js (not in the repo). -->
+  <script src="game-assets/assets.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
