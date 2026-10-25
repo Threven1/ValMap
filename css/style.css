@@ -488,8 +488,9 @@ input { font-family: var(--font); }
 
 /* ---------- Bug report ---------- */
 
-#bugBtn { margin-top: auto; width: 100%; height: 32px; font-size: 14px; color: var(--parch-dim); }
-#bugDialog {
+.footbtns { margin-top: auto; padding-top: 8px; display: flex; gap: 5px; }
+.footbtns .tbtn { flex: 1; height: 32px; padding: 0 6px; font-size: 13.5px; color: var(--parch-dim); }
+#bugDialog, #creditsDialog {
   position: fixed;
   inset: 0;
   z-index: 20;
@@ -497,7 +498,8 @@ input { font-family: var(--font); }
   place-items: center;
   background: rgba(8, 5, 3, .65);
 }
-#bugDialog[hidden] { display: none; }
+#bugDialog[hidden], #creditsDialog[hidden] { display: none; }
+.bugbox a { color: var(--gold); }
 .bugbox {
   width: min(460px, calc(100vw - 32px));
   padding: 16px 18px 14px;

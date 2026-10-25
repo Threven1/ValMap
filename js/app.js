@@ -2188,6 +2188,13 @@
   });
   bugDialog.addEventListener('click', e => { if (e.target === bugDialog) closeBugDialog(); });
 
+  // ---------- Credits ----------
+  const creditsDialog = $('#creditsDialog');
+  $('#creditsBtn').addEventListener('click', () => { creditsDialog.hidden = false; $('#creditsClose').focus(); });
+  $('#creditsClose').addEventListener('click', () => { creditsDialog.hidden = true; });
+  creditsDialog.addEventListener('keydown', e => { if (e.key === 'Escape') creditsDialog.hidden = true; });
+  creditsDialog.addEventListener('click', e => { if (e.target === creditsDialog) creditsDialog.hidden = true; });
+
   // ---------- Top bar ----------
   $('#undoBtn').addEventListener('click', undo);
   $('#redoBtn').addEventListener('click', redo);

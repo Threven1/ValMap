@@ -47,7 +47,10 @@
     <h3>Tool</h3>
     <div id="tools"></div>
 
-    <button id="bugBtn" class="tbtn" title="Tell us about a problem">Report a bug</button>
+    <div class="footbtns">
+      <button id="creditsBtn" class="tbtn" title="Who made the icons and font">Credits</button>
+      <button id="bugBtn" class="tbtn" title="Tell us about a problem">Report a bug</button>
+    </div>
   </aside>
 
   <main id="stage">
@@ -81,6 +84,23 @@
       <div class="bugrow end">
         <button id="bugCancel" class="tbtn">Cancel</button>
         <button id="bugSend" class="tbtn">Send report</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="creditsDialog" hidden role="dialog" aria-modal="true" aria-labelledby="creditsTitle">
+    <div class="bugbox">
+      <h2 id="creditsTitle">Credits</h2>
+      <p>Icons by Lorc, Delapouite, Caro Asercion, Cathelineau, Faithtoken, Kier Heyl and Skoll from
+        <a href="https://game-icons.net" target="_blank" rel="noopener">game-icons.net</a>,
+        licensed <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>.</p>
+      <p>Font: Averia Serif Libre by Dan Sayers, SIL Open Font License 1.1.</p>
+      <p>ValMap is free and open source (MIT):
+        <a href="https://github.com/Threven1/ValMap" target="_blank" rel="noopener">github.com/Threven1/ValMap</a>.</p>
+      <p>Unofficial fan tool. Not made, endorsed or supported by Iron Gate or Coffee Stain.
+        Valheim is a trademark of its owners. ValMap contains no game files.</p>
+      <div class="bugrow end">
+        <button id="creditsClose" class="tbtn">Close</button>
       </div>
     </div>
   </div>
