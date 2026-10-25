@@ -39,7 +39,7 @@
   const TILE_BUDGET_MS = 8;       // tile rendering time per frame
   const TREE_SPACING = 4;         // cells between tree spots
   const DETAIL_REACH = 19;        // cells a tree or symbol drawing can stick out of its spot (peaks)
-  const DETAIL_PX = 2;            // screen px per cell at which trees and symbols stop growing:
+  const DETAIL_PX = 4;            // screen px per cell at which trees and symbols stop growing:
                                   // zooming in further shows more of them, not bigger ones
 
   // ---------- Catalog lookups ----------
@@ -504,8 +504,9 @@
     const texAt = (T, k, x, y) => ((((y * k) | 0) % T.h) * T.w + (((x * k) | 0) % T.w)) * 4;
     const mountK = MOUNT ? MOUNT.w / MOUNT_REPEAT : 0;
     const forestK = {};
-    // Like drawn trees, the forest texture stops growing past DETAIL_PX: it repeats more instead.
-    const shrink = Math.min(u, DETAIL_PX) / u;
+    // Like drawn trees, the forest texture stops growing past a size and repeats more instead,
+    // a little later than the drawn trees since its trees are packed tighter.
+    const shrink = Math.min(u, DETAIL_PX * 2) / u;
     if (FOREST) for (const [kind, look] of Object.entries(FOREST_LOOK)) forestK[kind] = FOREST.w / (FOREST_REPEAT * look.scale * shrink);
     // Both textures are partly see-through: only their opaque parts change the ground.
     function gameTexture(c, out, lx, ly, treeW, mask) {

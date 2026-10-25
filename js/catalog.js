@@ -57,7 +57,7 @@ const CATALOG = {
     { key: 'grave',  label: 'I Died',      icon: 'lorc/tombstone',        badge: '#3a3a3a' },
     { key: 'danger', label: 'Danger!',     icon: 'lorc/hazard-sign',      badge: '#b8461b' },
     { key: 'cool',   label: 'Cool Spot',   icon: 'delapouite/round-star', badge: '#b58a12' },
-    { key: 'note',   label: 'Note',        icon: 'lorc/scroll-unfurled',  badge: '#6e5a3c' },
+    { key: 'note',   label: 'Sign',        icon: 'lorc/wooden-sign',      badge: '#6e5a3c' },
   ],
 
   // Places per biome. `boss: true` gets a gold ring. `badge` overrides the biome color.
@@ -163,7 +163,7 @@ const CATALOG = {
   gameArt: {
     spawn: 'mapicon_start',
     me: 'mapicon_player_32', base: 'mapicon_house', portal: 'portal_wood', camp: 'mapicon_bed',
-    grave: 'mapicon_death', note: 'mapicon_pin', danger: 'mapicon_shout', cool: 'mapicon_checked',
+    grave: 'mapicon_death', note: 'sign', danger: 'mapicon_shout', cool: 'mapicon_checked',
     eikthyr: 'TrophyEikthyr', hildir: 'mapicon_hildir', village: 'TrophyDraugr', beehive: 'queenbee',
     raspberry: 'raspberry', mushroom: 'mushroom', boar: 'TrophyBoar', flint: 'flint',
     elder: 'TrophyTheElder', haldor: 'mapicon_trader', crypt: 'TrophySkeleton', trollcave: 'TrophyForestTroll',
