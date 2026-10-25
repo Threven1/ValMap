@@ -1,5 +1,6 @@
-# Art extracted from your own Valheim install (belongs to Iron Gate). Never commit it.
-game-assets/
+# Loose PNGs extracted by tools/build-game-assets.js. The site only needs the packed
+# game-assets/assets.js, which is published (Valheim art (c) Iron Gate, see CREDITS.md).
+game-assets/png/
 
 # Bug reports collected by tools/export-bug-reports.js (they live as GitHub issues anyway).
 bug-reports.json

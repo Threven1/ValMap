@@ -5,7 +5,8 @@ Draw your own map while playing Valheim with the map turned off.
 The world starts as ocean on a round map with spawn in the middle. Paint the land you find,
 then drop big icons for the places you discover.
 
-> Unofficial fan tool. Not affiliated with Iron Gate or Coffee Stain. Contains no game files.
+> Unofficial fan tool. Not affiliated with Iron Gate or Coffee Stain. The optional "Game look"
+> uses Valheim art (c) Iron Gate AB; see [CREDITS.md](CREDITS.md).
 
 ## Run it
 
@@ -52,18 +53,17 @@ export a PNG.
 | Show / hide all places | `P` |
 | Save | `Ctrl+S` |
 
-## Game look (optional, uses your own copy of Valheim)
+## Game look
 
-ValMap can use Valheim's own map textures (parchment, water, forests, mountains), its
-trophy, item and map-pin icons, and its wooden panel and button textures. These belong to Iron Gate, so they are **not** part of this
-project: you extract them from your own install, and they stay on your computer.
+The **Game look** button switches to Valheim's own map textures (parchment, water, forests,
+mountains), trophy, item and map-pin icons, and wooden panel and button textures. This art is
+(c) Iron Gate AB, is not covered by ValMap's MIT license, and is used only in this free,
+non-commercial fan project (see [CREDITS.md](CREDITS.md)). It is packed in `game-assets/assets.js`.
+
+To refresh it after a Valheim update:
 
 1. Install Python and run `pip install UnityPy`
 2. Run `node tools/build-game-assets.js "C:\Program Files (x86)\Steam\steamapps\common\Valheim"`
-3. Restart ValMap. A **Game look** button appears in the top bar to switch the look on and off.
-
-The art lands in `game-assets/`, which `.gitignore` keeps out of the repository. Never commit or
-share that folder.
 
 ## Bug reports
 

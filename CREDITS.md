@@ -21,7 +21,15 @@ They were converted to plain path data by `tools/build-icons.js`. No other chang
 [Averia Serif Libre](https://github.com/google/fonts/tree/main/ofl/averiaseriflibre) by Dan Sayers,
 licensed under the [SIL Open Font License 1.1](fonts/OFL.txt). The unchanged font files are in `fonts/`.
 
+## Valheim art
+
+`game-assets/assets.js` holds art from Valheim (map textures, trophy, item and map-pin icons,
+panel and button textures), extracted with `tools/build-game-assets.js`. It is (c) Iron Gate AB,
+not covered by ValMap's MIT license, and used only for the optional "Game look" in this free,
+non-commercial fan project, as the Valheim terms allow for non-commercial projects. It will be
+removed on request from Iron Gate or Coffee Stain.
+
 ## Not affiliated
 
 ValMap is an unofficial fan tool. It is not made, endorsed or supported by Iron Gate AB or
-Coffee Stain. Valheim is a trademark of its respective owners. ValMap contains no game files.
+Coffee Stain. Valheim is a trademark of its respective owners.
