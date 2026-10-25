@@ -79,6 +79,7 @@
   let nextClass = 9;
   for (const [kind, d] of Object.entries(DETAILS)) if (d.type === 'area') AREA_CLASS[kind] = nextClass++;
   const LAVA = AREA_CLASS.lava;
+  const SAND = nextClass++;          // beach strip along sea coasts (see Beaches)
   const NUM_CLASSES = nextClass;
   const CLASS_OF = new Uint8Array(16 * 256);
   for (const b of BIOMES) {
@@ -120,6 +121,7 @@
   const FOREST_REPEAT = 32;        // cells per repeat of the game's forest texture
   const MOUNT_REPEAT = 48;         // cells per repeat of the mountain texture
   const MOUNT_STREAKS = 0.16;      // how much the rock streaks darken the snowy white
+  const FOREST_ALPHA = 0.6;        // forest texture strength: trees show, the biome color stays
   const WATER_REPEAT_M = 500;      // meters per repeat of the water texture
   const PAPER_REPEAT_M = 2500;     // meters per repeat of the parchment texture
   // How each tree kind tints and scales the game's forest texture (oaks are drawn bigger).
@@ -170,7 +172,11 @@
   }
 
   // Render class of a cell: its biome, or an area drawn on it (lava, bog water...).
-  const clsAt = i => CLASS_OF[grid[i] * 256 + detail[i]];
+  const nearSea = new Uint8Array(N * N);  // land cells within BEACH_CELLS of the sea (see Beaches)
+  // Snowy and volcanic coasts have no sandy beach in the game.
+  const NO_BEACH = new Uint8Array(16);
+  for (const k of ['mountain', 'ashlands', 'deepnorth']) NO_BEACH[biomeByKey[k].id] = 1;
+  const clsAt = i => { const c = CLASS_OF[grid[i] * 256 + detail[i]]; return c > 0 && c < 9 && nearSea[i] && !NO_BEACH[c] ? SAND : c; };
   // Detail bits drawn as trees or symbols, so cell changes must redraw further around them.
   const drawnMask = b => GLYPH_MASK[b] | (gameLook ? 0 : TREE_MASK[b]);
 
@@ -183,12 +189,15 @@
   const pack = (r, g, b, a = 255) => ((a << 24) | (b << 16) | (g << 8) | r) >>> 0;
   const shade = (rgb, f) => rgb.map(c => Math.max(0, Math.min(255, Math.round(c * f))));
 
+  const SAND_RGB = [196, 168, 112];
   const BASE_RGB = [];
   const EDGE_RGB = [];
   for (const b of BIOMES) {
     BASE_RGB[b.id] = hexRgb(b.color);
     EDGE_RGB[b.id] = shade(BASE_RGB[b.id], 0.62);
   }
+  BASE_RGB[SAND] = SAND_RGB;
+  EDGE_RGB[SAND] = [150, 124, 78];   // wet sand right at the water
   for (const [kind, c] of Object.entries(AREA_CLASS)) {
     BASE_RGB[c] = hexRgb(DETAILS[kind].color);
     EDGE_RGB[c] = hexRgb(DETAILS[kind].edge);
@@ -204,12 +213,13 @@
     if (!BASE_RGB[c]) continue;
     FILL[c] = pack(...BASE_RGB[c]);
     EDGE[c] = pack(...EDGE_RGB[c]);
-    TREE_FILL[c] = pack(...shade(BASE_RGB[c], 0.84));
+    TREE_FILL[c] = FILL[c];       // trees do not change the biome color, only add marks
     TREE_DOT[c] = pack(...shade(BASE_RGB[c], 0.55));
   }
   const FOAM = pack(...FOAM_RGB, 90);
   // Land biomes blend into each other with no edge line; only coasts and areas get one.
-  const softBorder = (a, b) => a > 0 && b > 0 && a < 9 && b < 9;
+  const isLandCls = c => (c > 0 && c < 9) || c === SAND;
+  const softBorder = (a, b) => isLandCls(a) && isLandCls(b);
   const BLEND_W = 1;               // in border "margin" units: the whole smooth transition
 
   // Small integer hash -> [0, 1)
@@ -230,8 +240,11 @@
   // Recolor a rectangle of cells (inclusive), plus a 1-cell border for coastlines.
   // `far`: the change involved trees or symbols, whose drawings reach beyond their cells.
   function redrawCells(x0, y0, x1, y1, far = true) {
-    x0 = Math.max(0, x0 - 1); y0 = Math.max(0, y0 - 1);
-    x1 = Math.min(N - 1, x1 + 1); y1 = Math.min(N - 1, y1 + 1);
+    // Beaches reach BEACH_CELLS from a changed coast, coastlines one more cell.
+    const m = BEACH_CELLS + 1;
+    x0 = Math.max(0, x0 - m); y0 = Math.max(0, y0 - m);
+    x1 = Math.min(N - 1, x1 + m); y1 = Math.min(N - 1, y1 + m);
+    updateBeaches(x0, y0, x1, y1);
     for (let y = y0; y <= y1; y++) {
       const up = y > 0 ? -N : 0;
       const down = y < N - 1 ? N : 0;
@@ -257,6 +270,41 @@
     scheduleShallows();
   }
   const redrawAllCells = () => redrawCells(0, 0, N - 1, N - 1);
+
+  // ---------- Beaches ----------
+  // Like the in-game map, land along the sea ends in a sandy strip. A land cell is beach when
+  // sea (or the world edge) is within BEACH_CELLS cells; found with two separable passes.
+  const BEACH_CELLS = 3;
+  const isSea = (x, y) => x < 0 || y < 0 || x >= N || y >= N || !inWorld[y * N + x] || grid[y * N + x] === 0;
+
+  // Update nearSea for a rectangle of cells (inclusive).
+  function updateBeaches(x0, y0, x1, y1) {
+    const B = BEACH_CELLS;
+    const w = x1 - x0 + 1, rows = y1 - y0 + 1 + 2 * B;
+    const across = new Uint8Array(w * rows);   // sea within B cells along the row
+    for (let r = 0; r < rows; r++) {
+      const y = y0 - B + r;
+      let last = -1e9;                          // last sea column seen, scanning right
+      for (let x = x0 - B; x <= x1 + B; x++) {
+        if (isSea(x, y)) last = x;
+        if (x - B >= x0 && x - B <= x1 && x - last <= 2 * B) across[r * w + x - B - x0] = 1;
+      }
+      last = 1e9;                               // and scanning left
+      for (let x = x1 + B; x >= x0 - B; x--) {
+        if (isSea(x, y)) last = x;
+        if (x + B >= x0 && x + B <= x1 && last - x <= 2 * B) across[r * w + x + B - x0] = 1;
+      }
+    }
+    for (let y = y0; y <= y1; y++) {
+      for (let x = x0; x <= x1; x++) {
+        const i = y * N + x;
+        if (isSea(x, y)) { nearSea[i] = 0; continue; }
+        let near = 0;
+        for (let r = y - y0; r <= y - y0 + 2 * B && !near; r++) near = across[r * w + x - x0];
+        nearSea[i] = near;
+      }
+    }
+  }
 
   // ---------- Shallow water ----------
   // Like the in-game map, water near land is lighter and fades into the deep sea. It is a blurred,
@@ -350,7 +398,7 @@
     if (!BASE_RGB[c] || c === LAVA) continue;
     for (let tr = 0; tr < 2; tr++) {
       for (let k = 0; k < 8; k++) {
-        const f = grain(k) * (tr && TREE_MASK[c] ? 0.87 : 1);
+        const f = grain(k);
         const [r, g, b] = BASE_RGB[c];
         PLAIN[(c * 2 + tr) * 8 + k] = pack(Math.min(255, r * f) | 0, Math.min(255, g * f) | 0, Math.min(255, b * f) | 0);
       }
@@ -473,7 +521,7 @@
       for (const kind of KINDS_IN.tree[c * 256 + mask]) {
         const look = FOREST_LOOK[kind];
         const s = texAt(FOREST, forestK[kind], lx + look.shift, ly + look.shift);
-        const a = px[s + 3] * treeW / 255;
+        const a = px[s + 3] * treeW * FOREST_ALPHA / 255;
         if (a <= 0) continue;
         const t = look.tint;
         out[0] += (Math.min(255, px[s] * t[0]) - out[0]) * a;
@@ -493,7 +541,6 @@
       }
       const rgb = margin < edgeW && other !== c && !softBorder(c, other) ? EDGE_RGB[c] : BASE_RGB[c];
       let f = 1 + (noise - 0.5) * 0.07;
-      if (treeW > 0 && TREE_MASK[c] && !FOREST) f *= 1 - 0.13 * treeW;
       if (c === LAVA && rgb === BASE_RGB[c]) {
         // Lava glows brighter in the middle of a flow, with slow swirls (in world cells).
         const swirl = 0.5 + 0.25 * Math.sin(lx * 0.9 + 2 * Math.sin(ly * 0.45)) + 0.25 * Math.sin(ly * 0.8 + 2 * Math.sin(lx * 0.35));
