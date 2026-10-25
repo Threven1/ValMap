@@ -29,7 +29,8 @@ for (const name of names) {
   const esc = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const m = manifest.match(new RegExp(`Assets/UI/map/${esc}\\.png`)) ||
     manifest.match(new RegExp(`Assets/GameElements/Items/_icons/${esc}\\.png`)) ||
-    manifest.match(new RegExp(`Assets/UI/textures/small/${esc}\\.png`));
+    manifest.match(new RegExp(`Assets/UI/textures/small/${esc}\\.png`)) ||
+    manifest.match(new RegExp(`Assets/GameElements/Pieces/icons/${esc}\\.png`));
   if (m) assetPaths.push(m[0]);
   else console.warn(`not in this game version: ${name}`);
 }

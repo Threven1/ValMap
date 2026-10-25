@@ -162,7 +162,7 @@ const CATALOG = {
   // Places not listed keep their game-icons.net symbol.
   gameArt: {
     spawn: 'mapicon_start',
-    me: 'mapicon_player_32', base: 'mapicon_house', portal: 'mapicon_portal', camp: 'mapicon_bed',
+    me: 'mapicon_player_32', base: 'mapicon_house', portal: 'portal_wood', camp: 'mapicon_bed',
     grave: 'mapicon_death', note: 'mapicon_pin', danger: 'mapicon_shout', cool: 'mapicon_checked',
     eikthyr: 'TrophyEikthyr', hildir: 'mapicon_hildir', village: 'TrophyDraugr', beehive: 'queenbee',
     raspberry: 'raspberry', mushroom: 'mushroom', boar: 'TrophyBoar', flint: 'flint',
