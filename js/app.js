@@ -24,6 +24,7 @@
   const LABEL_K = 0.75;           // marker scale at which default labels appear
   const CUSTOM_LABEL_K = 0.45;    // marker scale at which names you typed appear
   const GOLD = '#f2c14e';
+  const COMPASS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
   const AUTOSAVE_KEY = 'valmap.autosave.v1';
   const UNDO_LIMIT = 60;
 
@@ -996,7 +997,7 @@
   const w2s = (cam, x, z) => [cam.w / 2 + (x - cam.x) * cam.s, cam.h / 2 - (z - cam.z) * cam.s];
   const s2w = (px, py) => [view.x + (px - W / 2) / view.s, view.z - (py - H / 2) / view.s];
 
-  const fitScale = () => (Math.min(W, H) * 0.46) / WORLD_R;
+  const fitScale = () => (Math.min(W, H) * 0.41) / WORLD_R;  // room for the compass letters
   function clampView() {
     const min = fitScale() * 0.6;
     view.s = Math.max(min, Math.min(MAX_ZOOM, view.s));
@@ -1146,20 +1147,30 @@
 
     // Distance rings from spawn
     if (showRings) {
+      // A ring every 2 km, plus fainter 1 km rings once zoomed in enough to tell them apart.
+      const step = cam.s * 1000 > 60 ? 1000 : 2000;
       c.setLineDash([8 * ui, 8 * ui]);
-      c.lineWidth = 1.5 * ui;
-      c.strokeStyle = 'rgba(255,255,255,.3)';
-      for (let r = 2000; r < WORLD_R; r += 2000) {
+      for (let r = step; r < WORLD_R; r += step) {
+        c.lineWidth = (r % 2000 ? 1 : 1.5) * ui;
+        c.strokeStyle = r % 2000 ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.3)';
         c.beginPath();
         c.arc(cx, cy, r * cam.s, 0, Math.PI * 2);
         c.stroke();
       }
       c.setLineDash([]);
+      // Distance labels on all four sides, so one is in view wherever you look.
       c.font = `600 ${12 * ui}px "Segoe UI", sans-serif`;
       c.textAlign = 'center';
       c.textBaseline = 'middle';
       c.fillStyle = 'rgba(255,255,255,.65)';
-      for (let r = 2000; r < WORLD_R; r += 2000) c.fillText(`${r / 1000} km`, cx, cy - r * cam.s);
+      for (let r = step; r < WORLD_R; r += step) {
+        const d = r * cam.s;
+        const text = `${r / 1000} km`;
+        c.fillText(text, cx, cy - d);
+        c.fillText(text, cx, cy + d);
+        c.fillText(text, cx - d, cy);
+        c.fillText(text, cx + d, cy);
+      }
     }
     c.restore();
 
@@ -1170,18 +1181,25 @@
     c.strokeStyle = 'rgba(242,193,78,.55)';
     c.stroke();
 
-    // North marker
-    c.font = `800 ${18 * ui}px Georgia, serif`;
+    // Compass points around the rim: N, NE, E, SE, S, SW, W, NW (north is up).
     c.textAlign = 'center';
-    c.textBaseline = 'bottom';
-    c.fillStyle = GOLD;
-    c.fillText('N', cx, cy - R - 12 * ui);
-    c.beginPath();
-    c.moveTo(cx, cy - R - 2 * ui);
-    c.lineTo(cx - 6 * ui, cy - R - 11 * ui);
-    c.lineTo(cx + 6 * ui, cy - R - 11 * ui);
-    c.closePath();
-    c.fill();
+    c.textBaseline = 'middle';
+    COMPASS.forEach((name, n) => {
+      const a = (n * Math.PI) / 4;            // 0 = north, clockwise
+      const sx = Math.sin(a), sy = -Math.cos(a);
+      const main = n % 2 === 0;
+      const tip = R + 3 * ui, base = R + 12 * ui, w = (main ? 6 : 4) * ui;
+      c.fillStyle = main ? GOLD : 'rgba(242,193,78,.75)';
+      c.beginPath();
+      c.moveTo(cx + sx * tip, cy + sy * tip);
+      c.lineTo(cx + sx * base - sy * w, cy + sy * base + sx * w);
+      c.lineTo(cx + sx * base + sy * w, cy + sy * base - sx * w);
+      c.closePath();
+      c.fill();
+      const lr = R + (main ? 24 : 22) * ui;
+      c.font = `800 ${(main ? 18 : 13) * ui}px Georgia, serif`;
+      c.fillText(name, cx + sx * lr, cy + sy * lr);
+    });
 
     const labelSize = 13 * Math.max(0.75, k);
     const showDefault = allLabels || k >= LABEL_K;
@@ -1249,7 +1267,50 @@
       }
     }
     if (drag?.kind === 'paint') drawBrushRing(SIZES[sizeIdx].m * view.s, false);
+    drawCompassRose();
     positionPopup();
+  }
+
+  // A small compass rose fixed in the top-right corner, so directions stay visible when the rim
+  // is off screen, with how far the middle of the screen is from spawn.
+  function drawCompassRose() {
+    const r = 30, x = W - r - 26, y = r + 22;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.beginPath();
+    ctx.arc(0, 0, r + 6, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(20,13,8,.78)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(168,122,60,.9)';
+    ctx.stroke();
+    COMPASS.forEach((name, n) => {
+      const a = (n * Math.PI) / 4;
+      const sx = Math.sin(a), sy = -Math.cos(a);
+      const main = n % 2 === 0;
+      const len = main ? r * 0.62 : r * 0.38, w = main ? 5 : 3.5;
+      ctx.beginPath();
+      ctx.moveTo(sx * len, sy * len);
+      ctx.lineTo(-sy * w, sx * w);
+      ctx.lineTo(sy * w, -sx * w);
+      ctx.closePath();
+      ctx.fillStyle = n === 0 ? '#e0533a' : main ? GOLD : 'rgba(242,193,78,.6)';
+      ctx.fill();
+      if (main) {
+        ctx.font = '800 11px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = n === 0 ? '#ff8a6a' : '#f1e3c2';
+        ctx.fillText(name, sx * (r - 1), sy * (r - 1));
+      }
+    });
+    const km = Math.hypot(view.x, view.z) / 1000;
+    ctx.font = '700 11px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#f1e3c2';
+    if (view.s > fitScale() * 1.3) ctx.fillText(`${km.toFixed(1)} km`, 0, r + 10);  // when zoomed in
+    ctx.restore();
   }
 
   // ---------- Painting ----------
