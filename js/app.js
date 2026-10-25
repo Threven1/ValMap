@@ -208,6 +208,9 @@
     TREE_DOT[c] = pack(...shade(BASE_RGB[c], 0.55));
   }
   const FOAM = pack(...FOAM_RGB, 90);
+  // Land biomes blend into each other with no edge line; only coasts and areas get one.
+  const softBorder = (a, b) => a > 0 && b > 0 && a < 9 && b < 9;
+  const BLEND_W = 1;               // in border "margin" units: the whole smooth transition
 
   // Small integer hash -> [0, 1)
   function hash(x, y, salt) {
@@ -238,11 +241,11 @@
         const v = clsAt(i);
         const l = x > 0 ? -1 : 0;
         const r = x < N - 1 ? 1 : 0;
+        // A border needs an edge only where it is not a soft biome-to-biome blend.
+        const hard = j => { const o = clsAt(j); return o !== v && !softBorder(v, o); };
         const border =
-          clsAt(i + l) !== v || clsAt(i + r) !== v ||
-          clsAt(i + up) !== v || clsAt(i + down) !== v ||
-          clsAt(i + up + l) !== v || clsAt(i + up + r) !== v ||
-          clsAt(i + down + l) !== v || clsAt(i + down + r) !== v;
+          hard(i + l) || hard(i + r) || hard(i + up) || hard(i + down) ||
+          hard(i + up + l) || hard(i + up + r) || hard(i + down + l) || hard(i + down + r);
         if (v === 0) bioPix[i] = border ? FOAM : 0;
         else if (border) bioPix[i] = EDGE[v];
         else if (detail[i] & (TREE_MASK[v] | GLYPH_MASK[v])) bioPix[i] = (x * 3 + y * 5) % 7 === 0 ? TREE_DOT[v] : TREE_FILL[v];
@@ -488,7 +491,7 @@
         } else out[3] = 0;
         return;
       }
-      const rgb = margin < edgeW && other !== c ? EDGE_RGB[c] : BASE_RGB[c];
+      const rgb = margin < edgeW && other !== c && !softBorder(c, other) ? EDGE_RGB[c] : BASE_RGB[c];
       let f = 1 + (noise - 0.5) * 0.07;
       if (treeW > 0 && TREE_MASK[c] && !FOREST) f *= 1 - 0.13 * treeW;
       if (c === LAVA && rgb === BASE_RGB[c]) {
@@ -581,10 +584,15 @@
         }
         const margin = bw - Math.max(sw, 0);
         colorOf(best, second, margin, noise, treeW, rgba, lx, ly);
-        if (margin < aaW && sw > 0) {
-          // Anti-alias right at the border.
+        // Two biomes meet with a soft blend, like the in-game map; coasts and areas (lava, ice...)
+        // keep a crisp, anti-aliased edge.
+        const soft = softBorder(best, second);
+        const blendW = soft ? BLEND_W : aaW;
+        if (margin < blendW && sw > 0) {
           colorOf(second, best, margin, noise, treeW, rgba2, lx, ly);
-          const f = 0.5 - margin / (2 * aaW);
+          // A little grain in soft blends, so they look painted rather than airbrushed.
+          const m = soft ? Math.max(0, margin + (noise - 0.5) * 0.35) : margin;
+          const f = Math.max(0, 0.5 - m / (2 * blendW));
           for (let k = 0; k < 4; k++) rgba[k] += (rgba2[k] - rgba[k]) * f;
         }
         if (GL && best !== 0 && best !== LAVA) {
